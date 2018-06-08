@@ -60,8 +60,9 @@ metrics_function = function(matrixM){
   F2s_metric =  5 *((PPV_metric*TPR_metric) / (4*PPV_metric + TPR_metric))
   
   ## 12) Matthews Correlation Cofficient
-  MCC_metric = ((TP_cond * TN_cond) - (FP_cond * FN_cond)) / 
-    sqrt((TP_cond+FP_cond)*(TP_cond+FN_cond)*(TN_cond+FP_cond)*(TN_cond+FN_cond))
+  #MCC_metric = ((TP_cond * TN_cond) - (FP_cond * FN_cond)) / 
+  #  sqrt((TP_cond+FP_cond)*(TP_cond+FN_cond)*(TN_cond+FP_cond)*(TN_cond+FN_cond))
+  
   ## 13) Informedness 
   BMi_metric = TPR_metric + TNR_metric - 1
   
@@ -204,32 +205,40 @@ binary_ml = function(x,y,p){
 }
 ## testing R's: Logistic Regression, KNN, CART, Random Forest, XGBoost,SVM
 setwd("C:/Users/iwilli11/Desktop/Algorithms/Data/Football_Practice/nfl_data")
-nfl_data = read.csv('nfl_direction1.csv')
-
-
-
 ## Read in Data
 nfl_data1 <- read.csv("nfl_direction1.csv")
-## Number of Outcomes is 3582
-#dim(nfl_data1) 
-
-
 ## Get rid of NA outcomes
 nfl_data2 <- nfl_data1 %>% filter(is.na(Outcome)==F)
-## Number of Outcomes is 3270 that did not have a tie at the end of the game
-# dim(nfl_data2) 
-
-
 ## Make Home or Away binary (1:Home,0:Away)
 nfl_data3 <- nfl_data2 %>% mutate(HomeOrAwayBin = ifelse(HomeORAway =="H",1,0))
-
 ## Analysis dataset, remove non-important variables
 nfl_data4 <- nfl_data3 %>% select(-Team,-HomeORAway)
-
-
-
-
+## Put data in right format for ML functions
 y = nfl_data4 %>% select(Outcome)
+colnames(y) = "y"
 x = nfl_data4 %>% select(-Outcome)
+d_metrics = binary_ml(x = x,y = y,p = 0.25)
 
+
+
+long_m = gather(d_metrics,metrics_name,metric_value,TPR_metric:MKd_metric)
+
+few_metric = long_m %>% 
+  filter(metrics_name == "TPR_metric" |
+           metrics_name == "FPR_metric" |
+           metrics_name == "ACC_metric" | 
+           metrics_name == "PPV_metric")
+ggplot(few_metric,aes(x=metrics_name,y=metric_value,fill=method)) + 
+  geom_bar(stat = "identity", position=position_dodge()) +
+  ggtitle("Recovery Based on Each Models") +
+  xlab("Metrics Names") +
+  ylab("Measurements") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))  +
+  scale_fill_manual("legend", values = c("Logistic_Regression" = "black",
+                                         "CART" = "red",
+                                         "K-Nearest Neighbors"="blue",
+                                         "Random_Forest" = "green",
+                                         "SVM" = "orange",
+                                         "XGBoost" = "purple"))
 
