@@ -72,7 +72,7 @@ metrics_function = function(matrixM){
   
   metrics = cbind(TPR_metric, TNR_metric, PPV_metric, NPV_metric,
                   FNR_metric, FPR_metric, FDR_metric, FOR_metric, 
-                  ACC_metric, F1s_metric, F2s_metric, MCC_metric,
+                  ACC_metric, F1s_metric, F2s_metric, #MCC_metric,
                   BMi_metric, MKd_metric)
   
   colnames(metrics) = c("TPR_metric", "TNR_metric", 
@@ -80,7 +80,7 @@ metrics_function = function(matrixM){
                         "FNR_metric", "FPR_metric", 
                         "FDR_metric", "FOR_metric", 
                         "ACC_metric", "F1s_metric", 
-                        "F2s_metric", "MCC_metric",
+                        "F2s_metric", #"MCC_metric",
                         "BMi_metric", "MKd_metric")
   return(metrics)
 }
@@ -203,6 +203,7 @@ binary_ml = function(x,y,p){
   m_all = rbind(m_log,m_cart,m_knn,m_rf,m_svm,m_xgb)
   return(m_all)
 }
+
 ## testing R's: Logistic Regression, KNN, CART, Random Forest, XGBoost,SVM
 setwd("C:/Users/iwilli11/Desktop/Algorithms/Data/Football_Practice/nfl_data")
 ## Read in Data
@@ -217,7 +218,7 @@ nfl_data4 <- nfl_data3 %>% select(-Team,-HomeORAway)
 y = nfl_data4 %>% select(Outcome)
 colnames(y) = "y"
 x = nfl_data4 %>% select(-Outcome)
-d_metrics = binary_ml(x = x,y = y,p = 0.25)
+d_metrics = binary_ml(x = x,y = y,p = 0.25,knn_param)
 
 
 
@@ -233,11 +234,12 @@ ggplot(few_metric,aes(x=metrics_name,y=metric_value,fill=method)) +
   ggtitle("Recovery Based on Each Models") +
   xlab("Metrics Names") +
   ylab("Measurements") +
+  scale_y_continuous(limits = c(0, 1))+
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))  +
   scale_fill_manual("legend", values = c("Logistic_Regression" = "black",
                                          "CART" = "red",
-                                         "K-Nearest Neighbors"="blue",
+                                         "K-Nearest Neighbors"="green",
                                          "Random_Forest" = "green",
                                          "SVM" = "orange",
                                          "XGBoost" = "purple"))
