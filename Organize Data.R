@@ -84,7 +84,7 @@ metrics_function = function(matrixM){
                         "BMi_metric", "MKd_metric")
   return(metrics)
 }
-binary_ml = function(x,y,p){ 
+binary_ml = function(x,y,p,knn_param){ 
   
   
   df = data.frame(x,y)
@@ -136,7 +136,7 @@ binary_ml = function(x,y,p){
   ## ML2: KNN
   #################################
   ## Run Model
-  est_knn = knn(x_train,x_test,cl = y_train)
+  est_knn = knn(x_train,x_test,cl = y_train,k = knn_param)
   ## Confusion matrix for KNN
   m_knn = table(y_test,est_knn)
   m_knn = data.frame(method = "K-Nearest_Neighbors",
@@ -218,7 +218,7 @@ nfl_data4 <- nfl_data3 %>% select(-Team,-HomeORAway)
 y = nfl_data4 %>% select(Outcome)
 colnames(y) = "y"
 x = nfl_data4 %>% select(-Outcome)
-d_metrics = binary_ml(x = x,y = y,p = 0.25,knn_param)
+d_metrics = binary_ml(x = x,y = y,p = 0.25,knn_param = 4)
 
 
 
@@ -238,8 +238,8 @@ ggplot(few_metric,aes(x=metrics_name,y=metric_value,fill=method)) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))  +
   scale_fill_manual("legend", values = c("Logistic_Regression" = "black",
+                                         "K-Nearest_Neighbors"="blue",
                                          "CART" = "red",
-                                         "K-Nearest Neighbors"="green",
                                          "Random_Forest" = "green",
                                          "SVM" = "orange",
                                          "XGBoost" = "purple"))
