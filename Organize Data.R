@@ -84,6 +84,52 @@ metrics_function = function(matrixM){
                         "BMi_metric", "MKd_metric")
   return(metrics)
 }
+
+
+
+
+log_function= function(train_df,x_test,y_test){
+  log_model = glm(y ~.,
+                  data = train_df,
+                  family="binomial")
+  ## Predict for logistic regression
+  est_log = ifelse(predict(log_model, data.frame(x_test), type = "response")>0.5,1,0)
+  ## Confusion matrix for logistic regression
+  m_log = table(y_test,est_log)
+  m_log = data.frame(method = "Logistic_Regression",
+                     metrics_function(m_log))
+  return(m_log)
+}
+
+knn_function = function(x_train,x_test,y_train,y_test,knn_param){
+  est_knn = knn(x_train,x_test,cl = y_train,k = knn_param)
+  ## Confusion matrix for KNN
+  m_knn = table(y_test,est_knn)
+  m_knn = data.frame(method = "K-Nearest_Neighbors",
+                     metrics_function(m_knn))
+  return(m_knn)
+}
+
+cart_function(){
+  
+  return()
+}
+
+rf_function(){
+  
+  return()
+}
+
+svm_function(){
+  
+  return()
+}
+
+xgb_function(){
+  
+  return()
+}
+
 binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
                      cart_split = 2,
                      cart_bucket = 1,
@@ -124,26 +170,14 @@ binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
   ## ML1: Logistic Regression
   #################################
   ## Run Model
-  log_model = glm(y ~.,
-                  data = train_df,
-                  family="binomial")
-  ## Predict for logistic regression
-  est_log = ifelse(predict(log_model, data.frame(x_test), type = "response")>0.5,1,0)
-  ## Confusion matrix for logistic regression
-  m_log = table(y_test,est_log)
-  m_log = data.frame(method = "Logistic_Regression",
-                     metrics_function(m_log))
+  m_log = log_function(train_df,x_test,y_test);
   
   
   #################################
   ## ML2: KNN
   #################################
   ## Run Model
-  est_knn = knn(x_train,x_test,cl = y_train,k = knn_param)
-  ## Confusion matrix for KNN
-  m_knn = table(y_test,est_knn)
-  m_knn = data.frame(method = "K-Nearest_Neighbors",
-                     metrics_function(m_knn))
+  m_knn = knn_function(x_train,x_test,y_train,knn_param)
   
   
   #################################
