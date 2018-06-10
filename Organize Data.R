@@ -84,7 +84,9 @@ metrics_function = function(matrixM){
                         "BMi_metric", "MKd_metric")
   return(metrics)
 }
-binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel){ 
+binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
+                     cart_split = 2,
+                     cart_bucket = 1){ 
   
   
   df = data.frame(x,y)
@@ -147,7 +149,8 @@ binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel){
   ## ML3: CART
   #################################
   ## Run Model
-  cart_model = rpart(y ~. , method="class", data = train_df)
+  cart_model = rpart(y ~. , method="class", data = train_df, 
+                     minsplit = cart_split, minbucket = cart_bucket)
   ## Predict for KNN
   result_cart_test = predict(cart_model,data.frame(x_test))
   est_cart = apply(result_cart_test,1,which.max) - 1
@@ -220,7 +223,7 @@ y = nfl_data4 %>% select(Outcome)
 colnames(y) = "y"
 x = nfl_data4 %>% select(-Outcome)
 d_metrics = binary_ml(x = x,y = y,p = 0.25,knn_param = 4,svm_cost = 1,
-                      svm_kernel = "radial")
+                      svm_kernel = "radial",cart_split = 2,cart_bucket)
 
 
 
