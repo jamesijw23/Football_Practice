@@ -250,3 +250,16 @@ ggplot(few_metric,aes(x=metrics_name,y=metric_value,fill=method)) +
                                          "SVM" = "orange",
                                          "XGBoost" = "purple"))
 
+#######################
+## XGBoost Hyperparameters
+#######################
+# eta = 0.1,
+# max_depth = 15, 
+# nround=25, 
+# subsample = 0.5,
+# colsample_bytree = 0.5,
+# seed = 1,
+# eval_metric = "merror",
+# objective = "multi:softprob",
+# num_class = 12,
+# nthread = 3
