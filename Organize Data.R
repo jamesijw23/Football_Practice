@@ -86,7 +86,8 @@ metrics_function = function(matrixM){
 }
 binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
                      cart_split = 2,
-                     cart_bucket = 1){ 
+                     cart_bucket = 1,
+                     rf_tree_number = 200){ 
   
   
   df = data.frame(x,y)
@@ -167,7 +168,7 @@ binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
   rf_model = randomForest(as.factor(y) ~.,
                           data=train_df, 
                           importance=TRUE, 
-                          ntree=2000)
+                          ntree=rf_tree_number)
   ## Predict for logistic regression
   est_rf = predict(rf_model,data.frame(x_test))
   ## Confusion matrix for Random Forest
@@ -223,7 +224,7 @@ y = nfl_data4 %>% select(Outcome)
 colnames(y) = "y"
 x = nfl_data4 %>% select(-Outcome)
 d_metrics = binary_ml(x = x,y = y,p = 0.25,knn_param = 4,svm_cost = 1,
-                      svm_kernel = "radial",cart_split = 2,cart_bucket)
+                      svm_kernel = "radial",cart_split = 2,cart_bucket=1,rf_tree_number=200)
 
 
 
