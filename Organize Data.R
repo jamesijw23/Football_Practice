@@ -177,7 +177,7 @@ binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
   ## ML2: KNN
   #################################
   ## Run Model
-  m_knn = knn_function(x_train,x_test,y_train,knn_param)
+  m_knn = knn_function(x_train,x_test,y_train,y_test,knn_param)
   
   
   #################################
@@ -186,7 +186,7 @@ binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
   ## Run Model
   cart_model = rpart(y ~. , method="class", data = train_df, 
                      minsplit = cart_split, minbucket = cart_bucket)
-  ## Predict for KNN
+  ## Predict for CART
   result_cart_test = predict(cart_model,data.frame(x_test))
   est_cart = apply(result_cart_test,1,which.max) - 1
   
