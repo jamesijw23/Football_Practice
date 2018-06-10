@@ -84,7 +84,7 @@ metrics_function = function(matrixM){
                         "BMi_metric", "MKd_metric")
   return(metrics)
 }
-binary_ml = function(x,y,p,knn_param){ 
+binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel){ 
   
   
   df = data.frame(x,y)
@@ -177,7 +177,8 @@ binary_ml = function(x,y,p,knn_param){
   ## ML5: SVM
   #################################
   ## Run Model
-  svm_model = svm(y ~. , data = train_df)
+  svm_model = svm(y ~. , data = train_df, cost = svm_cost,
+                  kernel = svm_kernel)
   ## Predict for KNN
   result_svm_test = predict(svm_model,data.frame(x_test))
   est_svm = apply(result_cart_test,1,which.max) - 1
@@ -218,7 +219,8 @@ nfl_data4 <- nfl_data3 %>% select(-Team,-HomeORAway)
 y = nfl_data4 %>% select(Outcome)
 colnames(y) = "y"
 x = nfl_data4 %>% select(-Outcome)
-d_metrics = binary_ml(x = x,y = y,p = 0.25,knn_param = 4)
+d_metrics = binary_ml(x = x,y = y,p = 0.25,knn_param = 4,svm_cost = 1,
+                      svm_kernel = "radial")
 
 
 
