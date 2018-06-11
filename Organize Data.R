@@ -127,14 +127,31 @@ cart_function = function(train_df, x_test, y_test, cart_split, cart_bucket){
 
 
 
-rf_function(){
-  
-  return()
+rf_function = function(train_df,x_test,y_test,rf_tree_number){
+  rf_model = randomForest(as.factor(y) ~.,
+                          data=train_df, 
+                          importance=TRUE, 
+                          ntree=rf_tree_number)
+  ## Predict for logistic regression
+  est_rf = predict(rf_model,data.frame(x_test))
+  ## Confusion matrix for Random Forest
+  m_rf = table(y_test,est_rf)
+  m_rf = data.frame(method = "Random_Forest",
+                    metrics_function(m_rf))
+  return(m_rf)
 }
 
-svm_function(){
-  
-  return()
+svm_function = function(train_df,x_test,y_test,svm_kernel,svm_cost){
+  svm_model = svm(y ~. , data = train_df, cost = svm_cost,
+                  kernel = svm_kernel)
+  ## Predict for KNN
+  result_svm_test = predict(svm_model,data.frame(x_test))
+  est_svm = apply(result_cart_test,1,which.max) - 1
+  ## Confusion matrix for SVM
+  m_svm = table(y_test,est_svm)
+  m_svm = data.frame(method = "SVM",
+                     metrics_function(m_svm))
+  return(m_svm)
 }
 
 xgb_function(){
@@ -210,7 +227,7 @@ binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
   m_rf = table(y_test,est_rf)
   m_rf = data.frame(method = "Random_Forest",
                     metrics_function(m_rf))
-  
+  #m_rf = rf_function(train_df,x_test,y_test,rf_tree_number)
   
   #################################
   ## ML5: SVM
@@ -259,7 +276,7 @@ y = nfl_data4 %>% select(Outcome)
 colnames(y) = "y"
 x = nfl_data4 %>% select(-Outcome)
 d_metrics = binary_ml(x = x,y = y,p = 0.25,knn_param = 4,svm_cost = 1,
-                      svm_kernel = "radial",cart_split = 2,cart_bucket=1,
+                      svm_kernel = "radial",cart_split = 3,cart_bucket=3,
                       rf_tree_number=200)
 
 
