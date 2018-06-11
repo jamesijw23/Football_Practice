@@ -154,15 +154,22 @@ svm_function = function(train_df,x_test,y_test,svm_kernel,svm_cost){
   return(m_svm)
 }
 
-xgb_function(){
-  
-  return()
+xgb_function = function(x_train,x_test,y_train,y_test,n_rounds){
+  xgb_model <- xgboost(data = x_train, label = y_train, nrounds = n_rounds)
+  ## Predict for xgboost
+  est_xgb = ifelse(predict(xgb_model,x_test)>0.5,1,0)
+  ## Confusion matrix for xgboost
+  m_xgb = table(y_test,est_xgb)
+  m_xgb = data.frame(method = "XGBoost",
+                     metrics_function(m_xgb))
+  return(m_xgb)
 }
 
 binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
                      cart_split = 2,
                      cart_bucket = 1,
-                     rf_tree_number = 200){ 
+                     rf_tree_number = 200, 
+                     n_rounds = 10){ 
   
   
   df = data.frame(x,y)
@@ -190,22 +197,17 @@ binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
   y_test = test_df %>% select(y)
   y_test = as.numeric(factor(y_test$y))-1
   
-  
-  
-  
   #################################
   ## ML1: Logistic Regression
   #################################
   ## Run Model
   m_log = log_function(train_df,x_test,y_test);
   
-  
   #################################
   ## ML2: KNN
   #################################
   ## Run Model
   m_knn = knn_function(x_train,x_test,y_train,y_test,knn_param)
-  
   
   #################################
   ## ML3: CART
@@ -217,45 +219,20 @@ binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
   ## ML4: Random Forest
   #################################
   ## Run Model
-  rf_model = randomForest(as.factor(y) ~.,
-                          data=train_df, 
-                          importance=TRUE, 
-                          ntree=rf_tree_number)
-  ## Predict for logistic regression
-  est_rf = predict(rf_model,data.frame(x_test))
-  ## Confusion matrix for Random Forest
-  m_rf = table(y_test,est_rf)
-  m_rf = data.frame(method = "Random_Forest",
-                    metrics_function(m_rf))
-  #m_rf = rf_function(train_df,x_test,y_test,rf_tree_number)
+  m_rf = rf_function(train_df,x_test,y_test,rf_tree_number)
   
   #################################
   ## ML5: SVM
   #################################
   ## Run Model
-  svm_model = svm(y ~. , data = train_df, cost = svm_cost,
-                  kernel = svm_kernel)
-  ## Predict for KNN
-  result_svm_test = predict(svm_model,data.frame(x_test))
-  est_svm = apply(result_cart_test,1,which.max) - 1
-  ## Confusion matrix for SVM
-  m_svm = table(y_test,est_svm)
-  m_svm = data.frame(method = "SVM",
-                     metrics_function(m_svm))
-  
+  m_svm = svm_function(train_df,x_test,y_test,svm_kernel,svm_cost)
   
   
   #################################
   ## ML6: XGBoost
   #################################
   ## Run Model
-  xgb_model <- xgboost(data = x_train, label = y_train, nrounds = 10)
-  ## Predict for logistic regression
-  est_xgb = ifelse(predict(xgb_model,x_test)>0.5,1,0)
-  ## Confusion matrix for logistic regression
-  m_xgb = table(y_test,est_xgb)
-  m_xgb = data.frame(method = "XGBoost",
-                     metrics_function(m_xgb))
+  m_xgb = xgb_function(x_train,x_test,y_train,y_test,n_rounds)
   
   m_all = rbind(m_log,m_cart,m_knn,m_rf,m_svm,m_xgb)
   return(m_all)
@@ -277,7 +254,7 @@ colnames(y) = "y"
 x = nfl_data4 %>% select(-Outcome)
 d_metrics = binary_ml(x = x,y = y,p = 0.25,knn_param = 4,svm_cost = 1,
                       svm_kernel = "radial",cart_split = 3,cart_bucket=3,
-                      rf_tree_number=200)
+                      rf_tree_number=200, n_rounds=10)
 
 
 
