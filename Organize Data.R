@@ -275,7 +275,7 @@ long_m = gather(d_metrics,metrics_name,metric_value,TPR_metric:MKd_metric)
 
 few_metric = long_m %>% 
   filter(metrics_name == "TPR_metric" |
-           metrics_name == "FPR_metric" |
+           metrics_name == "F1s_metric" |
            metrics_name == "ACC_metric" | 
            metrics_name == "PPV_metric")
 ggplot(few_metric,aes(x=metrics_name,y=metric_value,fill=method)) + 
@@ -283,6 +283,7 @@ ggplot(few_metric,aes(x=metrics_name,y=metric_value,fill=method)) +
   ggtitle("Recovery Based on Each Models") +
   xlab("Metrics Names") +
   ylab("Measurements") +
+  scale_x_discrete(labels = c("Accuracy","F1","Precision","Recall")) +
   scale_y_continuous(limits = c(0, 1))+
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))  +
