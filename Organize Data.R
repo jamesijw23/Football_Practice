@@ -88,7 +88,7 @@ metrics_function = function(matrixM){
 
 
 
-log_function= function(train_df,x_test,y_test){
+log_function = function(train_df,x_test,y_test){
   log_model = glm(y ~.,
                   data = train_df,
                   family="binomial")
@@ -110,10 +110,22 @@ knn_function = function(x_train,x_test,y_train,y_test,knn_param){
   return(m_knn)
 }
 
-cart_function(){
+cart_function = function(train_df, x_test, y_test, cart_split, cart_bucket){
+  ## Run Model
+  cart_model = rpart(y ~. , method="class", data = train_df, 
+                     minsplit = cart_split, minbucket = cart_bucket)
+  ## Predict for CART
+  result_cart_test = predict(cart_model,data.frame(x_test))
+  est_cart = apply(result_cart_test,1,which.max) - 1
   
-  return()
+  ## Confusion matrix for CART
+  m_cart = table(y_test,est_cart)
+  m_cart = data.frame(method = "CART",
+                      metrics_function(m_cart))
+  return(m_cart)
 }
+
+
 
 rf_function(){
   
@@ -157,8 +169,6 @@ binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
   y_train = train_df %>% select(y)
   y_train = as.numeric(factor(y_train$y))-1
   
-  
-  
   x_test = as.matrix(test_df %>% select(-y))
   y_test = test_df %>% select(y)
   y_test = as.numeric(factor(y_test$y))-1
@@ -184,16 +194,7 @@ binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
   ## ML3: CART
   #################################
   ## Run Model
-  cart_model = rpart(y ~. , method="class", data = train_df, 
-                     minsplit = cart_split, minbucket = cart_bucket)
-  ## Predict for CART
-  result_cart_test = predict(cart_model,data.frame(x_test))
-  est_cart = apply(result_cart_test,1,which.max) - 1
-  
-  ## Confusion matrix for CART
-  m_cart = table(y_test,est_cart)
-  m_cart = data.frame(method = "CART",
-                      metrics_function(m_cart))
+  m_cart = cart_function(train_df,x_test,y_test,cart_split,cart_bucket)
   
   #################################
   ## ML4: Random Forest
@@ -258,7 +259,8 @@ y = nfl_data4 %>% select(Outcome)
 colnames(y) = "y"
 x = nfl_data4 %>% select(-Outcome)
 d_metrics = binary_ml(x = x,y = y,p = 0.25,knn_param = 4,svm_cost = 1,
-                      svm_kernel = "radial",cart_split = 2,cart_bucket=1,rf_tree_number=200)
+                      svm_kernel = "radial",cart_split = 2,cart_bucket=1,
+                      rf_tree_number=200)
 
 
 
