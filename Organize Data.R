@@ -144,9 +144,8 @@ rf_function = function(train_df,x_test,y_test,rf_tree_number){
 svm_function = function(train_df,x_test,y_test,svm_kernel,svm_cost){
   svm_model = svm(y ~. , data = train_df, cost = svm_cost,
                   kernel = svm_kernel)
-  ## Predict for KNN
-  result_svm_test = predict(svm_model,data.frame(x_test))
-  est_svm = apply(result_cart_test,1,which.max) - 1
+  ## Predict for SVM
+  est_svm = ifelse(predict(svm_model,data.frame(x_test))>0.5,1,0)
   ## Confusion matrix for SVM
   m_svm = table(y_test,est_svm)
   m_svm = data.frame(method = "SVM",
@@ -242,6 +241,12 @@ binary_ml = function(x,y,p,knn_param,svm_cost,svm_kernel,
 setwd("C:/Users/iwilli11/Desktop/Algorithms/Data/Football_Practice/nfl_data")
 ## Read in Data
 nfl_data1 <- read.csv("nfl_direction1.csv")
+
+
+
+##---------------------------------------------
+## 3. Manipulate Data
+##---------------------------------------------
 ## Get rid of NA outcomes
 nfl_data2 <- nfl_data1 %>% filter(is.na(Outcome)==F)
 ## Make Home or Away binary (1:Home,0:Away)
@@ -252,6 +257,14 @@ nfl_data4 <- nfl_data3 %>% select(-Team,-HomeORAway)
 y = nfl_data4 %>% select(Outcome)
 colnames(y) = "y"
 x = nfl_data4 %>% select(-Outcome)
+
+
+
+
+
+##---------------------------------------------
+## 3. Run ML Algorithms
+##---------------------------------------------
 d_metrics = binary_ml(x = x,y = y,p = 0.25,knn_param = 4,svm_cost = 1,
                       svm_kernel = "radial",cart_split = 3,cart_bucket=3,
                       rf_tree_number=200, n_rounds=10)
