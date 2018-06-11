@@ -125,8 +125,6 @@ cart_function = function(train_df, x_test, y_test, cart_split, cart_bucket){
   return(m_cart)
 }
 
-
-
 rf_function = function(train_df,x_test,y_test,rf_tree_number){
   rf_model = randomForest(as.factor(y) ~.,
                           data=train_df, 
